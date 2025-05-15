@@ -71,108 +71,104 @@ const FlashcardView = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-white p-6 shadow-md rounded-md">
-      {/* Upper Section: Flashcard Title, Image, and Description */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-2 text-center">{flashcard.title}</h2>
-
-        {flashcardImageUrl ? (
-          <img
-            src={flashcardImageUrl}
-            alt={flashcard.title}
-            className="w-full h-64 object-cover rounded-md mb-4"
-            onError={(e) => {
-              console.error("Flashcard Image Error:", e);
-              e.target.style.display = "none";
-            }}
-          />
-        ) : (
-          <p className="text-gray-500 text-center">No Flashcard Image Available</p>
-        )}
-
-        <p className="text-gray-700 text-center mb-4">{flashcard.description}</p>
-      </div>
-
-      {/* Main Content Section: Left, Center, and Right Columns */}
-      <div className="grid grid-cols-12 gap-8">
-
-        {/* Left Column: Flashcard Terms */}
-        <div className="col-span-3 bg-gray-100 p-6 rounded-md shadow-md">
-          <h3 className="text-lg font-semibold mb-2">Flashcard Terms</h3>
-          <ul className="space-y-2">
-            {terms.map((term, index) => (
-              <li
-                key={index}
-                className={`cursor-pointer p-2 rounded-md ${index === currentIndex ? "bg-red-200" : "hover:bg-gray-100"}`}
-                onClick={() => setCurrentIndex(index)}
-              >
-                {term.title}
-              </li>
-            ))}
-          </ul>
+    <div className="min-h-screen bg-[#f9f6f2] p-6">
+    <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-sm p-8">
+      {/* Header */}
+      {/* <div className="flex justify-between items-center border-b pb-4 mb-6">
+        <div>
+          <h2 className="text-xl font-semibold text-red-600">Create Flashcard</h2>
+          <div className="flex gap-6 mt-1 text-sm text-gray-600">
+            <span className="font-semibold text-black border-b-2 border-red-600">Create New</span>
+            <span className="hover:text-black cursor-pointer">My Flashcard</span>
+          </div>
         </div>
-
-        {/* Center Column: Term Image and Details */}
-        <div className="col-span-6 bg-white p-6 rounded-md shadow-md">
-          <h3 className="text-lg font-semibold mb-2 text-center">Term Details</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left side: Term Image */}
-            <div className="bg-gray-50 p-4 rounded-md">
+      </div> */}
+  
+      {/* Title and Description */}
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">{flashcard.title}</h3>
+        <p className="text-gray-500 text-sm">
+          {flashcard.description}
+        </p>
+      </div>
+  
+      {/* Main Grid */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Sidebar Terms */}
+        <div className="col-span-2 bg-white border rounded-md shadow-sm">
+          <div className="p-4">
+            <ul className="space-y-2 text-sm">
+              {terms.map((term, index) => (
+                <li
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`cursor-pointer font-medium ${
+                    index === currentIndex ? "text-red-600" : "text-gray-600 hover:text-black"
+                  }`}
+                >
+                  {term.title}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+  
+        {/* Main Card */}
+        <div className="col-span-7 bg-white rounded-md shadow-sm">
+          <div className="flex">
+            {/* Term Image */}
+            <div className="w-1/2 p-6 flex justify-center items-center">
               {termImageUrl ? (
                 <img
                   src={termImageUrl}
-                  alt={terms[currentIndex]?.title || "Term Image"}
-                  className="w-full h-38 object-cover rounded-md"
-                  onError={(e) => {
-                    console.error("Term Image Error:", e);
-                    e.target.style.display = "none";
-                  }}
+                  alt={terms[currentIndex]?.title}
+                  className="rounded-md w-[150px] h-[200px] object-cover"
                 />
               ) : (
-                <p className="text-gray-500">No Image Available</p>
+                <p className="text-gray-400">No Image</p>
               )}
             </div>
-
-            {/* Right side: Term Title & Description */}
-            <div className="p-4 bg-gray-50 rounded-md">
-              <h4 className="text-lg font-semibold">{terms[currentIndex]?.title}</h4>
-              <p className="text-gray-700">{terms[currentIndex]?.definition}</p>
+  
+            {/* Term Details */}
+            <div className="w-1/2 p-6">
+              <p className="text-sm text-gray-500 mb-2">{terms[currentIndex]?.title}</p>
+              <p className="text-sm text-gray-700">{terms[currentIndex]?.definition}</p>
             </div>
           </div>
-
-          <div className="flex justify-between mt-4">
-            <button onClick={prevTerm} className="text-red-500 p-2 bg-gray-200 rounded-md">
-              <FaArrowLeft size={20} />
-            </button>
-            <button onClick={nextTerm} className="text-red-500 p-2 bg-gray-200 rounded-md">
-              <FaArrowRight size={20} />
-            </button>
-          </div>
         </div>
-
-        {/* Right Column: Actions */}
-        <div className="col-span-3 bg-gray-100 p-6 rounded-md shadow-md">
-          <h3 className="text-lg font-semibold mb-2">Actions</h3>
+  
+        {/* Right Action Panel */}
+        <div className="col-span-3 flex flex-col gap-3">
           <button
-            onClick={handleShareClick} // Open the modal on click
-            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 w-full mb-2"
+            onClick={handleShareClick}
+            className="flex items-center gap-2 justify-center px-4 py-2 bg-white border rounded shadow-sm hover:bg-gray-50"
           >
             <FaShareAlt /> Share
           </button>
-          <button className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 w-full mb-2">
+          <button className="flex items-center gap-2 justify-center px-4 py-2 bg-white border rounded shadow-sm hover:bg-gray-50">
             <FaDownload /> Download
           </button>
-          <button className="bg-yellow-500 text-white px-4 py-2 rounded flex items-center gap-2 w-full">
+          <button className="flex items-center gap-2 justify-center px-4 py-2 bg-white border rounded shadow-sm hover:bg-gray-50">
             <FaPrint /> Print
           </button>
         </div>
-
       </div>
-
-      {/* ShareModal */}
-      {isModalOpen && <ShareModal link={shareLink} onClose={() => setIsModalOpen(false)} />}
+  
+      {/* Pagination */}
+      <div className="flex justify-center items-center mt-6 gap-4">
+        <button onClick={prevTerm} className="text-gray-500 hover:text-black">
+          <FaArrowLeft size={18} />
+        </button>
+        <p className="text-gray-700 text-sm">{`${currentIndex + 1}/${terms.length}`}</p>
+        <button onClick={nextTerm} className="text-gray-500 hover:text-black">
+          <FaArrowRight size={18} />
+        </button>
+      </div>
     </div>
+  
+    {isModalOpen && <ShareModal link={shareLink} onClose={() => setIsModalOpen(false)} />}
+  </div>
+  
   );
 };
 

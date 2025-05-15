@@ -1,5 +1,7 @@
 import { FiUpload, FiTrash2, FiEdit } from 'react-icons/fi';
 import { useEffect } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 const TermForm = ({ terms, setTerms, isDisabled }) => {
   useEffect(() => {
@@ -11,10 +13,58 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
     localStorage.setItem("terms", JSON.stringify(terms));
   }, [terms]);
 
-  const addTerm = () => {
-    if (!isDisabled) {
-      setTerms([...terms, { title: '', definition: '', imageFile: null, imagePreview: null, isEditing: true }]);
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: terms[terms.length - 1] || { title: '', definition: '' },
+    validationSchema: Yup.object({
+      title: Yup.string().required('Term is required'),
+      definition: Yup.string().required('Definition is required'),
+    }),
+    onSubmit: () => {
+      if (!isDisabled) {
+        setTerms([
+          ...terms,
+          { title: '', definition: '', imageFile: null, imagePreview: null, isEditing: true }
+        ]);
+      }
     }
+  });
+
+  const handleAddMore = async () => {
+    if (terms.length === 0) {
+      setTerms([
+        ...terms,
+        { title: '', definition: '', imageFile: null, imagePreview: null, isEditing: true }
+      ]);
+      return;
+    }
+
+    const lastTerm = terms[terms.length - 1];
+
+    // Validate the last form manually
+    const errors = {};
+    if (!lastTerm.title.trim()) errors.title = 'Term is required';
+    if (!lastTerm.definition.trim()) errors.definition = 'Definition is required';
+
+    if (Object.keys(errors).length > 0) {
+      formik.setTouched({ title: true, definition: true });
+      formik.setErrors(errors);
+      return;
+    }
+
+    // Add new blank term if previous one is valid
+    setTerms([
+      ...terms,
+      { title: '', definition: '', imageFile: null, imagePreview: null, isEditing: true }
+    ]);
+  };
+
+
+
+  const updateTerm = (index, field, value) => {
+    const updatedTerms = [...terms];
+    updatedTerms[index][field] = value;
+    setTerms(updatedTerms);
   };
 
   const removeTerm = (index) => {
@@ -25,12 +75,6 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
   const toggleEdit = (index) => {
     const updatedTerms = [...terms];
     updatedTerms[index].isEditing = !updatedTerms[index].isEditing;
-    setTerms(updatedTerms);
-  };
-
-  const updateTerm = (index, field, value) => {
-    const updatedTerms = [...terms];
-    updatedTerms[index][field] = value;
     setTerms(updatedTerms);
   };
 
@@ -63,8 +107,12 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
               onChange={(e) => updateTerm(index, 'title', e.target.value)}
               className="p-2 border"
               placeholder="Term"
-              disabled={!term.isEditing}
+              disabled={isDisabled || !term.isEditing}
+
             />
+            {index === terms.length - 1 && formik.touched.title && formik.errors.title && (
+              <div className="text-red-500 text-sm">{formik.errors.title}</div>
+            )}
           </div>
           <div className="flex flex-col w-1/3">
             <label className="font-semibold mb-1">Enter Definition</label>
@@ -75,10 +123,12 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
               placeholder="Definition"
               disabled={!term.isEditing}
             />
+            {index === terms.length - 1 && formik.touched.definition && formik.errors.definition && (
+              <div className="text-red-500 text-sm">{formik.errors.definition}</div>
+            )}
           </div>
 
           <div className="flex gap-4 items-center">
-            {/* Upload Button and Preview Image */}
             <div className="flex items-center gap-4">
               <label className="flex items-center border border-gray-400 text-blue-600 px-4 py-2 rounded cursor-pointer gap-2 mt-6">
                 <FiUpload size={18} />
@@ -87,12 +137,12 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  data-testid={`file-input-${index}`}
                   onChange={(e) => handleFileChange(index, e)}
                   disabled={!term.isEditing}
                 />
               </label>
 
-              {/* Image Preview */}
               {term.imagePreview && (
                 <img
                   src={term.imagePreview}
@@ -103,11 +153,11 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
               <p className="text-xs text-gray-500 mt-1">Image Preview</p>
             </div>
 
-            {/* Edit and Delete Buttons */}
-            <button onClick={() => toggleEdit(index)} className="text-blue-600">
+            <button onClick={() => toggleEdit(index)} className="text-blue-600" aria-label="Edit" data-testid={`edit-button-${index}`}>
               <FiEdit size={20} />
             </button>
-            <button onClick={() => removeTerm(index)} className="text-red-500">
+
+            <button onClick={() => removeTerm(index)} className="text-red-500" data-testid={`delete-button-${index}`} >
               <FiTrash2 size={20} />
             </button>
           </div>
@@ -115,7 +165,7 @@ const TermForm = ({ terms, setTerms, isDisabled }) => {
       ))}
 
       <button
-        onClick={addTerm}
+        onClick={handleAddMore}
         className={`bg-green-500 text-white p-2 rounded ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         disabled={isDisabled}
       >

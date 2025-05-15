@@ -40,13 +40,13 @@ const FlashcardItem = ({ flashcard: propFlashcard }) => {
   }, [reduxFlashcard?.imageFile]);
 
   return (
-    <div className="border rounded-md shadow-sm p-4 w-72 h-52 bg-white text-center hover:shadow-md transition">
-      <div className="flex justify-center mb-2">
+    <div className="relative border rounded-md shadow-sm pt-10 w-72 h-52 bg-white text-center hover:shadow-md transition">
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         {imageUrl && !imageError ? (
           <img
             src={imageUrl}
             alt="Flashcard"
-            className="w-16 h-16 rounded-full object-cover"
+            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
             onError={() => {
               console.error("Image failed to load:", imageUrl);
               setImageError(true);
@@ -54,13 +54,23 @@ const FlashcardItem = ({ flashcard: propFlashcard }) => {
             }}
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-md">
             <span className="text-gray-500 text-xs">No Image</span>
           </div>
         )}
       </div>
+
       <h2 className="font-semibold text-lg mb-1">{reduxFlashcard?.title || "No Title"}</h2>
-      <p className="text-gray-600 text-base mb-2">{reduxFlashcard?.description || "No Description"}</p>
+      <p className="text-gray-600 text-base mb-1">
+        {reduxFlashcard?.description || "No Description"}
+      </p>
+
+      {Array.isArray(reduxFlashcard?.terms) && (
+        <p className="text-sm text-gray-500 mb-2">
+          {reduxFlashcard.terms.length} {reduxFlashcard.terms.length === 1 ? 'card' : 'cards'}
+        </p>
+      )}
+
       <button
         onClick={() => navigate(`/flashcards/${reduxFlashcard.id}`)}
         className="border border-red-500 text-red-600 px-2 py-1 text-xs rounded hover:bg-red-50"
